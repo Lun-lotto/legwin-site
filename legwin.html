@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>วินเลข + เลขลาก 3 ตัว</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: sans-serif;
+      background: #fff;
+      color: #111;
+      padding: 30px;
+      max-width: 700px;
+      margin: auto;
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    h2 {
+      font-size: 16px;
+      margin: 24px 0 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+    }
+    textarea {
+      width: 100%;
+      font-size: 15px;
+      padding: 0;
+      resize: none;
+      background: none;
+      border: none;
+      outline: none;
+      font-family: monospace;
+      color: #222;
+      line-height: 1.6;
+      height: 80px;
+    }
+    input {
+      width: 100%;
+      font-size: 16px;
+      padding: 4px 0;
+      border: none;
+      border-bottom: 1px solid #ccc;
+      background: none;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    button {
+      font-size: 14px;
+      background: none;
+      border: none;
+      color: #007bff;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    button:hover {
+      text-decoration: underline;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    hr {
+      border:none;
+      height:1px;
+      background:#eee;
+      margin: 30px 0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>วินเลข</h1>
+
+<!-- ช่องกรอกเลขวิน -->
+<input type="text" id="inputNumbers" maxlength="7" placeholder="ใส่เลข (เช่น 1234567)" onkeypress="if(event.key==='Enter'){generateWin()}">
+<button onclick="generateWin()">🎲 วินเลข</button>
+<button onclick="resetAll()">🔄 รีเซต</button>
+
+<div class="section">
+  <h2>🔹 วิน 2 ตัว (ไม่รวมเบิ้ล) <button onclick="copy('win2')">📋คัดลอก</button></h2>
+  <textarea id="win2" readonly></textarea>
+
+  <h2>🔹 วิน 3 ตัว (ไม่รวมเบิ้ลหาม) <button onclick="copy('win3')">📋คัดลอก</button></h2>
+  <textarea id="win3" readonly></textarea>
+
+  <h2>🔹 วิน 2 ตัว (รวมเบิ้ล) <button onclick="copy('win2b')">📋คัดลอก</button></h2>
+  <textarea id="win2b" readonly></textarea>
+
+  <h2>🔹 วิน 3 ตัว (รวมเบิ้ลหาม) <button onclick="copy('win3b')">📋คัดลอก</button></h2>
+  <textarea id="win3b" readonly></textarea>
+</div>
+
+<hr>
+
+<!-- ช่องกรอกเลขลาก 2 ตัว -->
+<input type="text" id="inputLuk" maxlength="2" placeholder="ใส่เลขลาก 2 ตัว (เช่น 69)" oninput="this.value=this.value.replace(/[^0-9]/g,'')" onkeypress="if(event.key==='Enter'){generateLuk3()}">
+<button onclick="generateLuk3()">🎯 สร้างเลขลาก 3 ตัว</button>
+
+<div class="section">
+  <h2>🔸 เลขลาก 3 ตัว (เลข 2 ตัว + 0-9) <button onclick="copy('luk3')">📋คัดลอก</button></h2>
+  <textarea id="luk3" readonly></textarea>
+</div>
+
+<hr>
+
+<div class="section" id="specials"></div>
+
+<script>
+function format(arr, perRow = 12) {
+  return arr.join(', ').replace(new RegExp("((?:[^,]*, ){"+perRow+"})", 'g'), "$1\n");
+}
+
+function generateWin() {
+  let val = document.getElementById('inputNumbers').value.replace(/\D/g, '');
+  if (val.length < 2 || val.length > 7 || new Set(val).size !== val.length) {
+    alert("ใส่เลขไม่ซ้ำกัน 2–7 ตัว");
+    return;
+  }
+
+  let d = val.split('');
+
+  let win2 = [], win3 = [], win2b = [], win3b = [];
+
+  for (let i = 0; i < d.length; i++) {
+    for (let j = i + 1; j < d.length; j++) {
+      win2.push(d[i] + d[j]);
+    }
+    for (let j = i; j < d.length; j++) {
+      win2b.push(d[i] + d[j]);
+    }
+  }
+
+  for (let i = 0; i < d.length; i++) {
+    for (let j = i + 1; j < d.length; j++) {
+      for (let k = j + 1; k < d.length; k++) {
+        win3.push(d[i] + d[j] + d[k]);
+      }
+    }
+    for (let j = i; j < d.length; j++) {
+      for (let k = j; k < d.length; k++) {
+        win3b.push(d[i] + d[j] + d[k]);
+      }
+    }
+  }
+
+  document.getElementById('win2').value = format(win2);
+  document.getElementById('win3').value = format(win3);
+  document.getElementById('win2b').value = format(win2b);
+  document.getElementById('win3b').value = format(win3b);
+}
+
+function resetAll() {
+  document.getElementById('inputNumbers').value = '';
+  document.getElementById('inputLuk').value = '';
+  ['win2','win3','win2b','win3b','luk3'].forEach(id => document.getElementById(id).value = '');
+}
+
+function copy(id) {
+  let t = document.getElementById(id);
+  t.select();
+  document.execCommand("copy");
+}
+
+function generateLuk3() {
+  const luk = document.getElementById('inputLuk').value;
+  if(luk.length !== 2) {
+    alert('กรุณาใส่เลขลาก 2 ตัวให้ครบ');
+    return;
+  }
+  let results = [];
+  for(let i = 0; i <= 9; i++) {
+    results.push(luk + i);
+  }
+  document.getElementById('luk3').value = results.join(', ');
+}
+
+const specials = {
+  "💰 พี่น้อง 2 ตัว": `01 12 23 34 45 56 67 78 89 90`,
+  "💰 พี่น้อง 3 ตัว/เรียง": `012 123 234 345 456 567 678 789 890 901`,
+  "🎯 สิบแต้ม": `19 28 37 46 55`,
+  "✨ เรียงพิเศษ": `016 086 245 459 579 015 235`,
+  "🔥 ตองพิเศษ": `117 771 338 883 669 996 449 994`,
+  "🔥 ตองร้อย": `100 200 300 400 500 600 700 800 900`,
+  "🔥 ตองเทพ": `013 014 017 033 034 037 044 047 077 
+113 114 117 133 134 137 144 147 177 
+334 337 344 347 377 447 477`,
+  "😈 พี่น้องปลอม": `06 86 59 79`,
+  "💋 เลขชู้": `03 14 25 36 47 58 69 70 81 92`,
+  "💑 เลขผัวเมีย": `02 13 24 35 46 57 68 79 80 91`,
+  "🌀 เบิ้ลหน้า": `001 112 221 331 441 551 661 771 881 991
+002 113 223 332 442 552 662 772 882 992
+003 114 224 334 443 553 663 773 883 993
+004 115 225 335 445 554 664 774 884 994
+005 116 226 336 446 556 665 775 885 995
+006 117 227 337 447 557 667 776 886 996
+007 118 228 338 448 558 668 778 887 997
+008 119 229 339 449 559 669 779 889 998
+009 110 220 330 440 550 660 770 880 990`,
+  "🌀 หาม": `010 121 212 313 414 515 616 717 818 919
+020 131 232 323 424 525 626 727 828 929
+030 141 242 343 434 535 636 737 838 939
+040 151 252 353 454 545 646 747 848 949
+050 161 262 363 464 565 656 757 858 959
+060 171 272 373 474 575 676 767 868 969
+070 181 282 383 484 585 686 787 878 979
+080 191 292 393 494 595 696 797 898 989
+090 101 202 303 404 505 606 707 808 909`,
+  "🌀 เบิ้ลหลัง": `100 211 122 133 144 155 166 177 188 199
+200 311 322 233 244 255 266 277 288 299
+300 411 422 433 344 355 366 377 388 399
+400 511 522 533 544 455 466 477 488 499
+500 611 622 633 644 655 566 577 588 599
+600 711 722 733 744 755 766 677 688 699
+700 811 822 833 844 855 866 877 788 799
+800 911 922 933 944 955 966 977 988 899
+900 011 022 033 044 055 066 077 088 099`
+};
+
+const specialsDiv = document.getElementById('specials');
+Object.entries(specials).forEach(([title, nums], idx) => {
+  const id = "special_" + idx;
+  specialsDiv.innerHTML += `
+    <h2>${title} <button onclick="copy('${id}')">📋คัดลอก</button></h2>
+    <textarea id="${id}" readonly>${nums.trim()}</textarea>
+  `;
+});
+</script>
+
+</body>
+</html>
